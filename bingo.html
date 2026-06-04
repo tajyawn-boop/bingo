@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성경 인물 빙고 · X를 찾아서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gmarket+Sans:wght@500;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  /* ===== BINGO — PLAYFUL COSMIC INTRO + clean setup/game ===== */
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --ink:#1f2430; --ink-soft:#5b6373;
+    --ink-faint:#9aa1b0; --line:#e6e8ec;
+    --purple:#46178f; --purple2:#5b2bb0; --purple-dp:#2e0d63;
+    --accent:#7048c4; --accent-soft:#f0ebfa; --accent-dk:#5a37a3;
+    --mark:#16b06a; --mark-soft:#e3f6ec; --free:#ffb02e;
+    --pink:#ff3a6e; --blue:#1fb6e8; --yellow:#ffc930; --green:#26c46a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--ink);min-height:100vh;
+    font-family:'Gowun Dodum',sans-serif;line-height:1.7;
+  }
+
+  /* ===== COSMIC HERO (intro only) ===== */
+  .hero{
+    position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 90% 70% at 50% 8%, var(--purple2), var(--purple) 55%, var(--purple-dp));
+    padding:30px 22px 86px;text-align:center;
+  }
+  /* top-left title — on hero */
+  .hero .brand{position:absolute;top:18px;left:22px;display:flex;
+    align-items:center;gap:9px;z-index:5;}
+  .hero .brand .badge{font-family:'Jua',sans-serif;font-size:1.1rem;
+    width:36px;height:36px;border-radius:11px;background:#fff;color:var(--purple);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 0 rgba(0,0,0,.2);}
+  .hero .brand .bt{font-family:'Jua',sans-serif;font-size:1.2rem;color:#fff;
+    letter-spacing:.03em;}
+  .hero .brand .bt span{color:var(--yellow);}
+
+  /* floating decorations */
+  .deco{position:absolute;pointer-events:none;opacity:.9;}
+  .star{position:absolute;color:#b69be6;pointer-events:none;
+    animation:twinkle 3s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.3;transform:scale(.8);}
+    50%{opacity:1;transform:scale(1.1);}}
+  .planet{position:absolute;border-radius:50%;pointer-events:none;}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+  @keyframes spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+
+  .hero-inner{position:relative;z-index:4;}
+  .hero .kicker{display:inline-block;font-family:'Jua',sans-serif;
+    font-size:.92rem;color:var(--purple);background:var(--yellow);
+    padding:6px 18px;border-radius:30px;letter-spacing:.04em;
+    box-shadow:0 4px 0 rgba(0,0,0,.18);}
+  .hero h1{font-family:'Jua',sans-serif;font-weight:400;
+    font-size:4.3rem;color:#fff;line-height:1.05;margin:20px 0 6px;
+    letter-spacing:.01em;text-shadow:0 6px 0 rgba(0,0,0,.22);}
+  .hero h1 .pop{display:inline-block;color:var(--yellow);
+    animation:float 3s ease-in-out infinite;}
+  .hero .lead{font-family:'Gowun Dodum',sans-serif;color:#e5dcf7;
+    font-size:1.05rem;max-width:440px;margin:0 auto;}
+  /* little bingo-chip mascot */
+  .chip-mascot{display:inline-grid;grid-template-columns:1fr 1fr;gap:5px;
+    margin-top:26px;padding:12px;background:rgba(255,255,255,.1);
+    border-radius:16px;animation:float 3.5s ease-in-out infinite;}
+  .chip-mascot div{width:34px;height:34px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Jua',sans-serif;color:#fff;font-size:1.1rem;}
+  .chip-mascot .c1{background:var(--pink);}
+  .chip-mascot .c2{background:var(--blue);}
+  .chip-mascot .c3{background:var(--yellow);color:var(--purple);}
+  .chip-mascot .c4{background:var(--green);}
+  /* wave divider */
+  .hero .wave{position:absolute;left:0;right:0;bottom:-1px;z-index:3;
+    width:100%;height:60px;display:block;}
+
+  .wrap{max-width:780px;margin:0 auto;padding:0 22px 100px;}
+  .wrap.pulled{margin-top:-46px;position:relative;z-index:6;}
+
+  /* compact topbar for game views */
+  .topbar{display:none;background:var(--card);border-bottom:1px solid var(--line);
+    padding:14px 26px;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:50;}
+  .topbar .badge{font-family:'Jua',sans-serif;font-size:1rem;
+    width:32px;height:32px;border-radius:9px;background:var(--purple);color:#fff;
+    display:flex;align-items:center;justify-content:center;}
+  .topbar .ttl{font-family:'Jua',sans-serif;font-size:1.1rem;}
+  .topbar .ttl span{color:var(--accent);}
+  .topbar .crumb{margin-left:auto;font-size:.84rem;color:var(--ink-faint);}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;
+    padding:26px;margin-bottom:18px;box-shadow:0 8px 24px rgba(70,23,143,.06);}
+  .panel-title{font-family:'Jua',sans-serif;font-size:1.15rem;
+    margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+  .panel-title::before{content:"";width:6px;height:20px;background:var(--accent);
+    border-radius:3px;}
+
+  .roles{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .role{border:2px solid var(--line);border-radius:16px;padding:24px 20px;
+    cursor:pointer;text-align:center;transition:all .15s;background:var(--card);}
+  .role:hover{border-color:var(--accent);background:var(--accent-soft);
+    transform:translateY(-3px);}
+  .role .ri{width:54px;height:54px;border-radius:14px;margin:0 auto 12px;
+    background:var(--accent-soft);color:var(--accent);display:flex;
+    align-items:center;justify-content:center;font-size:1.7rem;
+    font-family:'Jua',sans-serif;}
+  .role h3{font-family:'Jua',sans-serif;font-size:1.15rem;margin-bottom:5px;}
+  .role p{font-size:.84rem;color:var(--ink-soft);line-height:1.5;}
+
+  .field{margin-bottom:20px;}
+  .field:last-child{margin-bottom:0;}
+  .field .lab{font-size:.88rem;color:var(--ink-soft);margin-bottom:9px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:.88rem;padding:9px 16px;border:1.5px solid var(--line);
+    border-radius:24px;background:var(--card);color:var(--ink-soft);
+    cursor:pointer;transition:all .15s;}
+  .chip:hover{border-color:var(--accent);color:var(--accent);}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);
+    font-weight:bold;}
+
+  .btn{width:100%;padding:16px;border:none;border-radius:14px;cursor:pointer;
+    font-family:'Jua',sans-serif;font-size:1.1rem;transition:all .15s;}
+  .btn-primary{background:var(--accent);color:#fff;
+    box-shadow:0 5px 0 var(--accent-dk);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--accent-dk);}
+  .btn-primary:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-dk);}
+  .btn-ghost{background:var(--card);color:var(--ink-soft);
+    border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+  .secbar{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:18px;padding-top:30px;}
+  .secbar h2{font-family:'Jua',sans-serif;font-size:1.3rem;}
+  .back{font-size:.86rem;background:none;border:1.5px solid var(--line);
+    border-radius:20px;color:var(--ink-soft);cursor:pointer;padding:6px 14px;
+    font-family:'Gowun Dodum',sans-serif;}
+  .back:hover{border-color:var(--accent);color:var(--accent);}
+
+  #host,#player{display:none;}
+  .host-card{background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:36px 30px;text-align:center;
+    box-shadow:0 8px 24px rgba(70,23,143,.06);}
+  .h-step{font-family:'Jua',sans-serif;font-size:.82rem;letter-spacing:.06em;
+    color:var(--accent);background:var(--accent-soft);display:inline-block;
+    padding:5px 16px;border-radius:20px;margin-bottom:18px;}
+  .h-clue{font-size:1.25rem;line-height:1.65;color:var(--ink);
+    max-width:560px;margin:0 auto;}
+  .h-clue b{color:var(--accent);font-family:'Jua',sans-serif;}
+  .h-name{font-family:'Jua',sans-serif;font-size:2.4rem;color:var(--accent);
+    margin:18px 0 6px;cursor:pointer;padding:10px 24px;border-radius:14px;
+    background:var(--accent-soft);display:inline-block;min-width:200px;}
+  .h-ref{font-size:.86rem;color:var(--ink-soft);}
+  .h-meta{font-size:.84rem;color:var(--ink-faint);margin-top:16px;}
+  .h-hist{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+    margin-top:14px;}
+  .h-hist span{font-size:.8rem;background:var(--bg);color:var(--ink-soft);
+    padding:3px 11px;border-radius:14px;}
+  .hint-line{font-size:.9rem;color:var(--ink-soft);background:var(--accent-soft);
+    border-radius:14px;padding:14px 18px;margin-bottom:18px;}
+
+  .p-name{font-family:'Jua',sans-serif;font-size:1.25rem;text-align:center;
+    margin-bottom:4px;}
+  .p-sub{text-align:center;font-size:.86rem;color:var(--ink-soft);
+    margin-bottom:18px;}
+  .bingo{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+    max-width:540px;margin:0 auto;}
+  .cell{aspect-ratio:1;background:var(--card);border:1.5px solid var(--line);
+    border-radius:12px;cursor:pointer;display:flex;align-items:center;
+    justify-content:center;padding:5px;text-align:center;transition:all .12s;}
+  .cell .cn{font-weight:bold;font-size:clamp(.68rem,2.5vw,.95rem);
+    color:var(--ink);line-height:1.25;}
+  .cell:hover{border-color:var(--accent);transform:scale(1.04);}
+  .cell.marked{background:var(--mark);border-color:var(--mark);}
+  .cell.marked .cn{color:#fff;}
+  .cell.free{background:var(--free);border-color:var(--free);}
+  .cell.free .cn{color:#fff;font-family:'Jua',sans-serif;font-size:.82rem;}
+
+  .pstat{text-align:center;margin-top:18px;padding:14px;border-radius:14px;
+    background:var(--card);border:1px solid var(--line);
+    font-family:'Jua',sans-serif;font-size:1.05rem;color:var(--ink-soft);}
+  .pstat.win{background:var(--mark-soft);color:var(--mark);border-color:var(--mark);
+    font-size:1.25rem;}
+  .lines{display:flex;gap:6px;justify-content:center;margin-top:12px;}
+  .ld{width:32px;height:9px;border-radius:5px;background:var(--line);}
+  .ld.on{background:var(--accent);}
+
+  /* 방 코드 배너 */
+  .room-banner{background:var(--accent-soft);border:1px solid var(--line);
+    border-radius:14px;padding:12px 18px;margin-bottom:14px;
+    font-family:'Jua',sans-serif;font-size:1rem;color:var(--ink);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .room-banner b{font-size:1.5rem;letter-spacing:.18em;color:var(--accent);}
+  .room-banner .room-sub{font-family:'Gowun Dodum',sans-serif;font-size:.82rem;
+    color:var(--ink-soft);font-weight:normal;}
+  /* 참가자 현황 */
+  .players-panel{margin-top:22px;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;padding:16px 18px;}
+  .pp-title{font-family:'Jua',sans-serif;font-size:1.1rem;margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;}
+  .pp-count{font-family:'Gowun Dodum',sans-serif;font-size:.85rem;color:var(--ink-soft);
+    background:var(--bg);border-radius:12px;padding:2px 10px;}
+  .pp-list{display:flex;flex-direction:column;gap:8px;}
+  .pp-empty{color:var(--ink-faint);font-size:.9rem;text-align:center;padding:10px;}
+  .pp-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
+    border-radius:11px;background:var(--bg);border:1px solid var(--line);}
+  .pp-row.win{background:var(--mark-soft);border-color:var(--mark);}
+  .pp-rank{font-family:'Jua',sans-serif;font-size:.9rem;color:var(--ink-faint);
+    width:22px;text-align:center;flex-shrink:0;}
+  .pp-name{flex:1;font-weight:bold;}
+  .pp-lines{font-size:.9rem;color:var(--ink-soft);}
+  .pp-row.win .pp-lines{color:var(--mark);font-family:'Jua',sans-serif;}
+
+  @media(max-width:560px){
+    .hero{padding:24px 16px 78px;}
+    .hero h1{font-size:3rem;}
+    .wrap{padding:0 16px 80px;}
+    .roles{grid-template-columns:1fr;}
+    .bingo{gap:6px;}
+    .h-name{font-size:2rem;}
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- compact bar shown only in game views -->
+<div class="topbar" id="topbar">
+  <span class="badge">X</span>
+  <span class="ttl">X<span>를</span> 찾아서</span>
+  <span class="crumb">성경 인물 빙고</span>
+</div>
+
+<!-- ===== COSMIC INTRO ===== -->
+<div class="hero" id="hero">
+  <div class="brand">
+    <span class="badge">X</span>
+    <span class="bt">X<span>를</span> 찾아서</span>
+  </div>
+  <!-- decorations injected by JS -->
+  <div class="hero-inner">
+    <span class="kicker">함께하는 성경 인물 게임</span>
+    <h1>성경 인물 <span class="pop">빙고</span></h1>
+    <p class="lead">진행자가 단서를 읽으면, 친구들은 자기 빙고판에서 그 인물을 찾아요!</p>
+    <div class="chip-mascot">
+      <div class="c1">★</div><div class="c2">✦</div>
+      <div class="c3">●</div><div class="c4">▲</div>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none">
+    <path d="M0,30 C240,60 480,0 720,24 C960,48 1200,12 1440,34 L1440,60 L0,60 Z"
+      fill="#f4f5f7"></path>
+  </svg>
+</div>
+
+<div class="wrap pulled" id="setupWrap">
+  <div id="setup">
+    <div class="panel">
+      <div class="panel-title">먼저, 역할을 골라요</div>
+      <div class="roles">
+        <div class="role" onclick="goHost()">
+          <div class="ri">▶</div>
+          <h3>진행자 화면</h3>
+          <p>큰 화면에 띄워 인물 단서를 하나씩 호출합니다.</p>
+        </div>
+        <div class="role" onclick="goPlayer()">
+          <div class="ri">▦</div>
+          <h3>참가자 빙고판</h3>
+          <p>각자 휴대폰에서 자기만의 5×5 빙고판을 만듭니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">게임 설정</div>
+      <div class="field">
+        <div class="lab">인물 범위 — 원하는 만큼 선택</div>
+        <div class="chips" id="g_pool"></div>
+      </div>
+      <div class="field">
+        <div class="lab">단서 난이도</div>
+        <div class="chips" id="g_diff"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap" id="gameWrap">
+  <div id="host">
+    <div class="secbar"><h2>진행자 화면</h2>
+      <button class="back" onclick="location.reload()">처음으로</button></div>
+    <div class="room-banner" id="roomBanner">방 코드: <b id="roomCode">----</b>
+      <span class="room-sub">참가자에게 이 코드를 알려주세요</span></div>
+    <div class="hint-line">진행자는 인물 이름을 바로 말하지 말고, 아래 단서만 읽어주세요.
+      참가자가 자기 판에서 인물을 찾으면 칸을 누릅니다. 이름을 누르면 정답이 보여요.</div>
+    <div class="host-card">
+      <span class="h-step" id="hStep">시작 준비</span>
+      <div class="h-clue" id="hClue">아래 버튼을 눌러 첫 번째 인물 단서를 호출하세요.</div>
+      <div class="h-name" id="hName" style="display:none;">???</div>
+      <div class="h-ref" id="hRef"></div>
+      <div class="h-meta" id="hMeta"></div>
+      <div class="h-hist" id="hHist"></div>
+      <button class="btn btn-primary" id="hBtn" style="margin-top:22px;"
+        onclick="callNext()">첫 번째 단서 호출</button>
+    </div>
+    <div class="players-panel">
+      <div class="pp-title">참가자 현황 <span class="pp-count" id="ppCount">0명</span></div>
+      <div class="pp-list" id="ppList"><div class="pp-empty">아직 참가자가 없어요. 방 코드를 알려주세요.</div></div>
+    </div>
+  </div>
+
+  <div id="player">
+    <div class="secbar"><h2>내 빙고판</h2>
+      <button class="back" onclick="location.reload()">처음으로</button></div>
+    <div class="p-name" id="pName"></div>
+    <div class="p-sub">진행자가 단서를 읽으면, 맞는 인물 칸을 누르세요.</div>
+    <div class="bingo" id="bingo"></div>
+    <div class="lines" id="lines"></div>
+    <div class="pstat" id="pStat">한 줄(가로·세로·대각)을 완성하면 빙고!</div>
+    <button class="btn btn-ghost" style="max-width:280px;margin:18px auto 0;display:block;"
+      onclick="newCard()">새 빙고판 만들기</button>
+  </div>
+</div>
+
+<script>
+// ====== Supabase (참가자 현황 공유) ======
+const SUPABASE_URL = "https://rtwrsygyhfrktlrjqvsd.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0d3JzeWd5aGZya3RscmpxdnNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MTM5MzksImV4cCI6MjA5NjA4OTkzOX0.w2-qKZXuT220LI4vxPsryuOGpkUuZf_-IK1rCITJ3Zs";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let roomCode = null;      // 진행자/참가자 공통 방 코드
+let myPlayerId = null;    // 참가자 자신의 row id
+let myName = '';
+
+/* ---- inject cosmic decorations ---- */
+(function(){
+  const hero=document.getElementById('hero');
+  // stars
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div');s.className='star';
+    s.textContent='✦';
+    s.style.left=Math.random()*94+'%';
+    s.style.top=Math.random()*84+'%';
+    s.style.fontSize=(Math.random()*14+9)+'px';
+    s.style.animationDelay=(Math.random()*3)+'s';
+    hero.appendChild(s);
+  }
+  // planets / orbs
+  const orbs=[
+    {s:120,l:'-4%',t:'-12%',c:'rgba(255,255,255,.06)'},
+    {s:80,l:'88%',t:'58%',c:'rgba(255,201,48,.16)'},
+    {s:54,l:'8%',t:'62%',c:'rgba(255,58,110,.16)'},
+    {s:40,l:'80%',t:'10%',c:'rgba(31,182,232,.18)'},
+  ];
+  orbs.forEach((o,i)=>{
+    const d=document.createElement('div');d.className='planet';
+    d.style.width=o.s+'px';d.style.height=o.s+'px';
+    d.style.left=o.l;d.style.top=o.t;d.style.background=o.c;
+    d.style.animation=`float ${3+i*0.6}s ease-in-out infinite`;
+    hero.appendChild(d);
+  });
+})();
+
+const PEOPLE=[
+ {name:'다니엘',group:'c1',easy:'바벨론에서도 하나님의 방식을 지킨 사람',hard:'왕의 음식을 거절하고 사자 굴에서도 살아남은 사람',ref:'다니엘서'},
+ {name:'요셉',group:'c1',easy:'형들에게 팔렸지만 후에 형들을 용서한 사람',hard:'채색옷을 입었고 애굽의 총리가 되어 가족을 살린 사람',ref:'창세기 37~50장'},
+ {name:'솔로몬',group:'c1',easy:"'헛되고 헛되다'고 고백한 지혜의 왕",hard:'다윗의 아들로 성전을 지었고 전도서를 쓴 것으로 알려진 왕',ref:'전도서'},
+ {name:'예수님',group:'c1',easy:'십자가에서 죽고 사흘 만에 부활하신 분',hard:'세상이 보기엔 패배 같았으나 가장 큰 승리를 이루신 분',ref:'복음서'},
+ {name:'바울',group:'c1',easy:'로마서를 비롯해 많은 편지를 쓴 사도',hard:'다메섹 도상에서 예수님을 만나 변화된 이방인의 사도',ref:'로마서·서신서'},
+ {name:'아브라함',group:'ot',easy:'믿음의 조상이라 불리는 사람',hard:'본토를 떠나라는 부르심에 순종하고 이삭을 바치려 한 사람',ref:'창세기'},
+ {name:'모세',group:'ot',easy:'홍해를 가르고 이스라엘을 인도한 지도자',hard:'떨기나무 불꽃에서 부르심을 받고 십계명을 받은 사람',ref:'출애굽기'},
+ {name:'다윗',group:'ot',easy:'물맷돌로 골리앗을 이긴 소년이자 왕',hard:'시편을 많이 쓴 것으로 알려진 하나님 마음에 합한 왕',ref:'사무엘서·시편'},
+ {name:'노아',group:'ot',easy:'방주를 지은 사람',hard:'홍수 심판 가운데 가족과 동물을 방주로 구원한 사람',ref:'창세기 6~9장'},
+ {name:'에스더',group:'ot',easy:'"죽으면 죽으리이다"라고 말한 왕비',hard:'유대 민족을 구하려 목숨을 걸고 왕 앞에 나아간 왕비',ref:'에스더서'},
+ {name:'룻',group:'ot',easy:'시어머니를 떠나지 않은 모압 여인',hard:'"어머니의 하나님이 나의 하나님"이라 고백한 다윗의 증조모',ref:'룻기'},
+ {name:'요나',group:'ot',easy:'큰 물고기 배 속에 들어갔던 선지자',hard:'니느웨로 가라는 명령을 피해 도망쳤던 선지자',ref:'요나서'},
+ {name:'엘리야',group:'ot',easy:'갈멜산에서 바알 선지자와 대결한 선지자',hard:'불수레를 타고 하늘로 올라간 것으로 알려진 선지자',ref:'열왕기상'},
+ {name:'느헤미야',group:'ot',easy:'무너진 예루살렘 성벽을 다시 쌓은 사람',hard:'왕의 술 맡은 관원이었다가 성벽 재건을 이끈 사람',ref:'느헤미야서'},
+ {name:'베드로',group:'nt',easy:'예수님을 세 번 부인했던 제자',hard:'물 위를 걸었고 후에 초대교회의 기둥이 된 어부 출신 제자',ref:'복음서·사도행전'},
+ {name:'요한',group:'nt',easy:"'사랑의 사도'라 불리는 제자",hard:'요한복음과 요한계시록을 쓴 것으로 알려진 제자',ref:'요한복음'},
+ {name:'마리아',group:'nt',easy:'예수님을 낳은 어머니',hard:'천사의 수태고지를 받고 "말씀대로 이루어지이다"라 한 사람',ref:'누가복음'},
+ {name:'세례 요한',group:'nt',easy:'광야에서 회개를 외친 사람',hard:'예수님께 세례를 베풀었고 "그는 흥하고 나는 쇠하여야"라 한 사람',ref:'복음서'},
+ {name:'마르다',group:'nt',easy:'예수님을 대접하느라 분주했던 사람',hard:'동생 마리아와 달리 준비하는 일로 염려가 많았던 사람',ref:'누가복음 10장'},
+ {name:'도마',group:'nt',easy:'예수님의 부활을 의심했던 제자',hard:'못 자국에 손을 넣어보지 않고는 믿지 않겠다 한 제자',ref:'요한복음 20장'},
+ {name:'스데반',group:'nt',easy:'초대교회의 첫 순교자',hard:'돌에 맞으면서도 박해자들을 용서해 달라 기도한 사람',ref:'사도행전 7장'},
+ {name:'바나바',group:'nt',easy:"'위로의 아들'이라 불린 사람",hard:'바울을 교회에 소개하고 함께 전도여행을 떠난 사람',ref:'사도행전'},
+ {name:'삭개오',group:'nt',easy:'예수님을 보려고 나무에 올라간 세리',hard:'키가 작아 뽕나무에 올랐고 재산 절반을 나눠준 세리장',ref:'누가복음 19장'},
+ {name:'니고데모',group:'nt',easy:'밤에 예수님을 찾아온 바리새인',hard:'"거듭나야 한다"는 말씀을 들은 산헤드린 공회원',ref:'요한복음 3장'},
+];
+const POOLS={c1:'수련회 핵심 인물',ot:'구약 인물',nt:'신약 인물'};
+const state={pool:new Set(['c1','ot','nt']),diff:'easy'};
+const poolEl=document.getElementById('g_pool');
+Object.entries(POOLS).forEach(([k,label])=>{
+  const c=document.createElement('div');c.className='chip on';c.textContent=label;
+  c.onclick=()=>{
+    if(state.pool.has(k)){if(state.pool.size===1)return;
+      state.pool.delete(k);c.classList.remove('on');}
+    else{state.pool.add(k);c.classList.add('on');}};
+  poolEl.appendChild(c);
+});
+const diffEl=document.getElementById('g_diff');
+[['쉬운 단서','easy'],['어려운 단서','hard']].forEach(([label,val])=>{
+  const c=document.createElement('div');c.className='chip'+(state.diff===val?' on':'');
+  c.textContent=label;
+  c.onclick=()=>{state.diff=val;
+    [...diffEl.children].forEach(x=>x.classList.remove('on'));c.classList.add('on');};
+  diffEl.appendChild(c);
+});
+function activePeople(){return PEOPLE.filter(p=>state.pool.has(p.group));}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* swap intro hero for compact bar when entering a game view */
+function enterGame(){
+  document.getElementById('hero').style.display='none';
+  document.getElementById('setupWrap').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+}
+
+let callDeck=[],callIdx=-1,called=[];
+function goHost(){
+  if(activePeople().length<5){alert('인물 범위를 더 넓혀주세요.');return;}
+  enterGame();
+  document.getElementById('host').style.display='block';
+  callDeck=shuffle(activePeople());callIdx=-1;called=[];
+  // 방 코드 생성 (4자리)
+  roomCode=String(Math.floor(1000+Math.random()*9000));
+  document.getElementById('roomCode').textContent=roomCode;
+  refreshPlayers();
+  setInterval(refreshPlayers,3000);
+}
+
+// 진행자: 참가자 현황 불러오기
+async function refreshPlayers(){
+  if(!roomCode) return;
+  const {data,error}=await sb.from('bingo_players')
+    .select('*').eq('room',roomCode);
+  if(error){console.error(error);return;}
+  const list=(data||[]).slice().sort((a,b)=>{
+    if(a.bingo!==b.bingo) return a.bingo?-1:1;
+    return (b.lines||0)-(a.lines||0);
+  });
+  const el=document.getElementById('ppList');
+  document.getElementById('ppCount').textContent=list.length+'명';
+  if(!list.length){
+    el.innerHTML='<div class="pp-empty">아직 참가자가 없어요. 방 코드를 알려주세요.</div>';
+    return;
+  }
+  el.innerHTML=list.map((p,i)=>`
+    <div class="pp-row${p.bingo?' win':''}">
+      <span class="pp-rank">${i+1}</span>
+      <span class="pp-name">${escHtml(p.name)}</span>
+      <span class="pp-lines">${p.bingo?('🎉 빙고! '+p.lines+'줄'):(p.lines+'줄')}</span>
+    </div>`).join('');
+}
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function callNext(){
+  if(callIdx+1>=callDeck.length){
+    document.getElementById('hStep').textContent='완료';
+    document.getElementById('hClue').textContent='모든 인물을 호출했습니다. 빙고를 외친 참가자를 확인해주세요.';
+    document.getElementById('hName').style.display='none';
+    document.getElementById('hRef').textContent='';
+    document.getElementById('hBtn').style.display='none';return;
+  }
+  callIdx++;const p=callDeck[callIdx];called.push(p.name);
+  document.getElementById('hStep').textContent=`단서 ${callIdx+1}`;
+  document.getElementById('hClue').innerHTML=
+    `<b>단서.</b> ${state.diff==='easy'?p.easy:p.hard}`;
+  const nm=document.getElementById('hName');
+  nm.style.display='inline-block';nm.textContent='정답 보기';
+  nm.onclick=()=>{nm.textContent=p.name;};
+  document.getElementById('hRef').textContent='관련 본문 · '+p.ref;
+  document.getElementById('hMeta').textContent=
+    `${callIdx+1} / ${callDeck.length} 인물 호출됨`;
+  document.getElementById('hHist').innerHTML=
+    called.map(n=>`<span>${n}</span>`).join('');
+  document.getElementById('hBtn').textContent=
+    (callIdx+1<callDeck.length)?'다음 단서 호출':'마지막 단서';
+}
+
+let grid=[];
+async function goPlayer(){
+  if(activePeople().length<12){alert('빙고판을 채우려면 인물 범위를 더 넓혀주세요.');return;}
+  const code=prompt('진행자가 알려준 방 코드를 입력하세요 (숫자 4자리)','');
+  if(!code||!code.trim()){return;}
+  roomCode=code.trim();
+  const nm=prompt('이름을 입력하세요','');
+  myName=(nm&&nm.trim())?nm.trim():'참가자';
+  enterGame();
+  document.getElementById('player').style.display='block';
+  document.getElementById('pName').textContent=myName+' 님의 빙고판';
+  // Supabase에 참가자 등록
+  const {data,error}=await sb.from('bingo_players')
+    .insert({room:roomCode,name:myName,lines:0,bingo:false}).select().single();
+  if(error){console.error(error);}
+  else{myPlayerId=data.id;}
+  newCard();
+}
+function newCard(){
+  let pool=shuffle(activePeople());
+  const cells=[];let i=0;
+  while(cells.length<24){cells.push(pool[i%pool.length]);i++;}
+  const picked=shuffle(cells).slice(0,24);
+  grid=[];const board=document.getElementById('bingo');board.innerHTML='';
+  let pi=0;
+  for(let r=0;r<5;r++){grid[r]=[];
+    for(let c=0;c<5;c++){
+      if(r===2&&c===2){
+        grid[r][c]={free:true,marked:true};
+        const cell=document.createElement('div');cell.className='cell free';
+        cell.innerHTML='<div class="cn">FREE</div>';board.appendChild(cell);
+      }else{
+        const p=picked[pi++];const obj={name:p.name,marked:false};grid[r][c]=obj;
+        const cell=document.createElement('div');cell.className='cell';
+        cell.innerHTML=`<div class="cn">${p.name}</div>`;
+        cell.onclick=()=>{obj.marked=!obj.marked;
+          cell.classList.toggle('marked',obj.marked);checkBingo();};
+        board.appendChild(cell);
+      }
+    }
+  }
+  const ld=document.getElementById('lines');ld.innerHTML='';
+  for(let k=0;k<5;k++){const d=document.createElement('div');d.className='ld';
+    ld.appendChild(d);}
+  const st=document.getElementById('pStat');
+  st.className='pstat';
+  st.textContent='한 줄(가로·세로·대각)을 완성하면 빙고!';
+  syncProgress(0);
+}
+function countLines(){
+  let n=0;
+  for(let r=0;r<5;r++)if(grid[r].every(c=>c.marked))n++;
+  for(let c=0;c<5;c++){let a=true;for(let r=0;r<5;r++)if(!grid[r][c].marked)a=false;
+    if(a)n++;}
+  let d1=true,d2=true;
+  for(let i=0;i<5;i++){if(!grid[i][i].marked)d1=false;if(!grid[i][4-i].marked)d2=false;}
+  if(d1)n++;if(d2)n++;return n;
+}
+function checkBingo(){
+  const n=countLines();const dots=document.getElementById('lines').children;
+  for(let i=0;i<5;i++)dots[i].classList.toggle('on',i<n);
+  const st=document.getElementById('pStat');
+  if(n>=3){st.className='pstat win';st.textContent=`빙고 ${n}줄 완성! 진행자에게 외치세요!`;}
+  else if(n>0){st.className='pstat';st.textContent=`${n}줄 완성 — 한 줄만 더!`;}
+  else{st.className='pstat';st.textContent='아직 완성된 줄이 없어요 — 단서를 잘 들어보세요.';}
+  syncProgress(n);
+}
+
+// 참가자: 내 진행 상황을 진행자 화면으로 전송
+let _syncTimer=null;
+function syncProgress(n){
+  if(!myPlayerId) return;
+  clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(async()=>{
+    const {error}=await sb.from('bingo_players')
+      .update({lines:n,bingo:n>=3,updated_at:new Date().toISOString()})
+      .eq('id',myPlayerId);
+    if(error)console.error(error);
+  },300);
+}
+</script>
+</body>
+</html>
